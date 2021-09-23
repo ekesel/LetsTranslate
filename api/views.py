@@ -9,7 +9,11 @@ from rest_framework.authtoken.models import Token
 from .serializers import *
 from django.core import serializers
 from validate_email import validate_email
-
+from libretranslatepy import LibreTranslateAPI
+import json
+import sys
+from urllib import request, parse
+from langdetect import detect
 
 def emailcheck(email):
     is_valid = validate_email(
@@ -25,6 +29,17 @@ def emailcheck(email):
     smtp_debug=False)
 
     return is_valid
+
+def translate(text):
+    url = "http://localhost:5000/translate"
+    params = {"q": text, "source": detect(text), "target": 'en'}
+    params["api_key"] = 'f726f7b4-eb71-47a5-aba8-e8b4cbd94ab5'
+    url_params = parse.urlencode(params)
+    req = request.Request(url, data=url_params.encode())
+    response = request.urlopen(req)
+    response_str = response.read().decode()
+    return json.loads(response_str)["translatedText"]
+
 
 @api_view(['POST','GET'])
 @permission_classes((IsAuthenticated, ))
@@ -42,15 +57,21 @@ def index(request):
                 }
                 return Response(data,status=200)
             elif user.username == 'user2':
-                text = translate()
-                data = {}
-                # add code
+                text = translate(serializer.validated_data['text'])
+                data = {
+                    "email": serializer.validated_data['email'],
+                    "email_is_valid": "false",
+                    "text_translated": text
+                }
                 return Response(data,status=200)
             elif user.username == 'user3':
-                check = emailcheck()
-                text = translate()
-                data = {}
-                # add code
+                check = emailcheck(serializer.validated_data['email'])
+                text = translate(serializer.validated_data['text'])
+                data = {
+                    "email": serializer.validated_data['email'],
+                    "email_is_valid": check,
+                    "text_translated": text
+                }
                 return Response(data,status=200)
             else:
                 data = {}
