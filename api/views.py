@@ -2,14 +2,13 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import *
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, permissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from .serializers import *
 from django.core import serializers
 from validate_email import validate_email
-from libretranslatepy import LibreTranslateAPI
 import json
 import sys
 from urllib import request, parse
@@ -48,23 +47,7 @@ def index(request):
         serializer = inputSerializer(data=request.data)
         if serializer.is_valid():
             user = request.user
-            if user.username == 'user1':
-                check = emailcheck(serializer.validated_data['email'])
-                data = {
-                    "email": serializer.validated_data['email'],
-                    "email_is_valid": check,
-                    "text_translated": "null"
-                }
-                return Response(data,status=200)
-            elif user.username == 'user2':
-                text = translate(serializer.validated_data['text'])
-                data = {
-                    "email": serializer.validated_data['email'],
-                    "email_is_valid": "false",
-                    "text_translated": text
-                }
-                return Response(data,status=200)
-            elif user.username == 'user3':
+            if user.has_perm('api.do_both'):
                 check = emailcheck(serializer.validated_data['email'])
                 text = translate(serializer.validated_data['text'])
                 data = {
@@ -74,9 +57,26 @@ def index(request):
                 }
                 return Response(data,status=200)
             else:
-                data = {}
-                data['response'] = "Sorry! This api can only be used by user1, user2 and user3"
-                return Response(data,status=400)
+                if user.has_perm('api.only_email_validation'):
+                    check = emailcheck(serializer.validated_data['email'])
+                    data = {
+                        "email": serializer.validated_data['email'],
+                        "email_is_valid": check,
+                        "text_translated": "null"
+                    }
+                    return Response(data,status=200)
+                elif user.has_perm('api.only_translate_text'):
+                    text = translate(serializer.validated_data['text'])
+                    data = {
+                        "email": serializer.validated_data['email'],
+                        "email_is_valid": "false",
+                        "text_translated": text
+                    }
+                    return Response(data,status=200)
+                else:
+                    data = {}
+                    data['response'] = "Sorry! This api can only be used by user who have permissions"
+                    return Response(data,status=400)
         else:
             dat = serializer.errors
             data = {}
@@ -98,5 +98,52 @@ def index(request):
             return Response(data,status=406)
     else:
         data = {}
-        data['response'] = "Please hit the endpoint with POST method only and use appropriate user Token in Headers, Thanks!"
+        data['response'] = "Please hit the endpoint with POST method only after logging in with appropriate user, Thanks!"
         return Response(data,status=400)
+
+
+# @api_view(['POST','GET'])
+# def login(request):
+#     if request.method == 'POST':
+#         serializer = loginSerializer(data=request.data)
+#         if serializer.is_valid():
+#             username = serializer.validated_data['username']
+#             password = serializer.validated_data['password']
+#             user = authenticate(username=username, password=password)
+#             if user is not None:
+#                 if user.is_active:
+#                     login(request, user)
+#                     data = {}
+#                     data['response'] = "Success, now use the main api to test!"
+#                     return Response(data,status=200)
+#                 else:
+#                     data = {}
+#                     data['response'] = "This account is disabled!"
+#                     return Response(data,status=400)
+#             else:
+#                 data = {}
+#                 data['response'] = "Invalid Credentials!"
+#                 return Response(data,status=400)
+#         else:
+#             dat = serializer.errors
+#             data = {}
+#             data['error'] = {}
+#             if "username" in dat:
+#                 if dat['username'][0].code == "invalid":
+#                     data['error']['message'] = "username is invalid"
+#                     data['error']['description'] = "username key should be a string"
+#                 else:
+#                     data['error']['message'] = "username is required"
+#                     data['error']['description'] = "Please enter username with appropriate value"
+#             if "password" in dat:
+#                 if dat['password'][0].code == "invalid":
+#                     data['error']['message'] = "password is invalid"
+#                     data['error']['description'] = "password key should be a string"
+#                 else:
+#                     data['error']['message'] = "password is required"
+#                     data['error']['description'] = "Please enter password with appropriate value"
+#             return Response(data,status=406)
+#     else:
+#         data = {}
+#         data['response'] = "Please hit the endpoint with POST method only after logging in with appropriate user, Thanks!"
+#         return Response(data,status=400)
