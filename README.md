@@ -48,10 +48,10 @@ In this API, there are 4 users currently, the first user is superuser and there 
 
 | username       | password           | token |
 | ------------- |:-------------:| -----:|
-| ekesel | admin123 | 69d2d1e05c128ce305061ad5c6afe4673279c595 |
-| user1 | myuser123      |   af6dc91e09cf88b5a0e268851282914859b206ca |
-| user2 | myuser123      |    7e37ff2cbc83de0673b9ed9abac8331c4c3396ce |
-| user3 | myuser123      |    8f1a4f1d6c94e3e3f76c3415125f22fb5613ceaf |
+| ekesel | myadmin123 | a4900e30d5259df39d74e775258ee962ab491f41 |
+| user1 | myuser@123      |   8c9003121655a48bde14d953643bec85ec754d1f |
+| user2 | myuser@123      |   2ca79c3cf2176ab34dad545eb12d9d63ebbfefa1 |
+| user3 | myuser@123      |   8aa8df17660dd160fdd95c922f16e69508f2d12b |
 
 ## API End Product
 
@@ -62,16 +62,13 @@ The parameters are email and text and return the modified version of the input a
 
 I have implemented token based authentication in REST framework to easily identify users. If i wouldn't have used token based authentication, i would have to implement a login screen to login a user and then test api. the token is passed in Headers with Key `Authorization` and Value `Token <token> `. Tokens are automatically created when we add a user. It can be checked through the admin panel. 
 
-## Server Setup
+## Check it out!
 
-The server is setup on Amazon AWS EC2 Instance - Ubuntu Server 20.04 LTS (Free Tier). I have used simple apache2 to host the application. **Due to free tier limits, I changed the libretranslate self hosted api link to one of free libretranslate apis** - https://libretranslate.de/translate
-
-## Check it out Live!
-
-URL - http://ec2-44-198-138-2.compute-1.amazonaws.com/
-Check it out on POSTMAN!
-Use POST method and header {'Authorization':'Token 8f1a4f1d6c94e3e3f76c3415125f22fb5613ceaf'}
-form-data values - 1. email 2. text
+- Run the django server
+- Run the libretranslate server alongside
+- Check it out on POSTMAN!
+- Use POST method and header {'Authorization':'Token <choose any token>'}
+- form-data values - 1. email 2. text
 
 ## Requirements to Run the Project.
 
