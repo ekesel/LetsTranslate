@@ -13,6 +13,9 @@ import json
 import sys
 from urllib import request, parse
 from langdetect import detect
+from LetsTranslate.settings import env
+
+
 
 def emailcheck(email):
     is_valid = validate_email(
@@ -32,7 +35,7 @@ def emailcheck(email):
 def translate(text):
     url = "http://localhost:5000/translate"
     params = {"q": text, "source": detect(text), "target": 'en'}
-    params["api_key"] = 'f726f7b4-eb71-47a5-aba8-e8b4cbd94ab5'
+    params["api_key"] = env('API_KEY')
     url_params = parse.urlencode(params)
     req = request.Request(url, data=url_params.encode())
     response = request.urlopen(req)

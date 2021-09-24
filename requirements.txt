@@ -4,3 +4,4 @@ dnspython==2.1.0
 langdetect==1.0.9
 libretranslate==1.2.4
 py3-validate-email==1.0.2
+django-environ
