@@ -72,7 +72,7 @@ def index(request):
                     text = translate(serializer.validated_data['text'])
                     data = {
                         "email": serializer.validated_data['email'],
-                        "email_is_valid": "false",
+                        "email_is_valid": "null",
                         "text_translated": text
                     }
                     return Response(data,status=200)
